@@ -1,28 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(req: NextRequest) {
-  const url = req.nextUrl;
-  
-  // Get the hostname (e.g., 'johndoe.tealstack.com' or 'localhost:3000')
-  const hostname = req.headers.get('host') || '';
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('session')?.value;
+  const { pathname } = request.nextUrl;
 
-  // Define your main domain (update this when deploying to production)
-  const currentHost = process.env.NODE_ENV === 'production' 
-   ? hostname.replace(`.yourdomain.com`, '')
-    : hostname.replace(`.localhost:3000`, '');
+  // Protect routes starting with /dashboard
+  if (pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/auth', request.url));
+    }
+  }
 
-  // If it's a subdomain, rewrite to the dynamic tenant route
-  if (currentHost!== 'localhost:3000' && currentHost!== 'yourdomain.com') {
-    url.pathname = `/apps/${currentHost}${url.pathname}`;
-    return NextResponse.rewrite(url);
+  // Redirect logged-in users away from /auth
+  if (pathname === '/auth' && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/dashboard/:path*', '/auth'],
 };
