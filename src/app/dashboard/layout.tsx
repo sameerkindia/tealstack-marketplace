@@ -1,37 +1,26 @@
+import { getSessionUser } from '@/lib/session';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/LogoutButton';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+  if (!user) redirect('/auth');
+
   return (
-    <div className="flex h-screen bg-[#0f172a]">
-      {/* Sidebar Navigation */}
-      <aside className="w-64 bg-[#1e293b] border-r border-slate-800 flex flex-col">
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-teal-400">Vendor Portal</h2>
-        </div>
-        <nav className="flex-1 px-4 space-y-2">
-          <Link href="/dashboard" className="block px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-cyan-400 rounded-md transition-colors">
-            Overview
-          </Link>
-          <Link href="/dashboard/products" className="block px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-cyan-400 rounded-md transition-colors">
-            My Products
-          </Link>
-          <Link href="/dashboard/settings" className="block px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-cyan-400 rounded-md transition-colors">
-            Store Settings
-          </Link>
-          <Link href="/dashboard/payouts" className="block px-4 py-2 text-slate-300 hover:bg-slate-800 hover:text-cyan-400 rounded-md transition-colors">
-            Payouts (MoR)
-          </Link>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between">
+        <nav className="space-y-4">
+          <h2 className="font-bold text-lg mb-6">Dashboard</h2>
+          <Link href="/dashboard" className="block p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded">Overview</Link>
+          <Link href="/dashboard/settings" className="block p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded">Settings</Link>
         </nav>
+        <LogoutButton />
       </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-8">
-        {children}
-      </main>
+      
+      {/* Main Content */}
+      <main className="flex-1 p-8">{children}</main>
     </div>
   );
 }
