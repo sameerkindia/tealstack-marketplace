@@ -1,10 +1,12 @@
 'use client';
-import { logoutAction } from '@/app/actions/auth';
+import { handleSignOut } from '@/app/actions/auth';
 
 export function LogoutButton() {
   return (
-    <button onClick={() => logoutAction()} className="text-red-500 font-medium">
-      Sign Out
-    </button>
+    <form action={handleSignOut}>
+      <button type="submit" className="text-red-500 font-medium cursor-pointer">
+        Sign Out
+      </button>
+    </form>
   );
 }
